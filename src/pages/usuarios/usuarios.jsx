@@ -25,9 +25,7 @@ const Usuarios = () => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const defaultImage = 'https://static.printler.com/cache/1/b/b/8/0/b/1bb80b58e47e77319e802f0b20384c0da97030ca.jpg';
-//'https://via.placeholder.com/50'
 
-  
   useEffect(() => {
     fetchUsuarios();
     fetchCursos();
@@ -37,8 +35,11 @@ const Usuarios = () => {
     try {
       const response = await fetch('https://localhost:3000/api/usuarios');
       if (!response.ok) throw new Error('Error al obtener usuarios');
-      const data = await response.json();
-      setUsuarios(data.filter(usuario => usuario.estado));
+      // Asegúrate de que la respuesta no sea vacía antes de procesarla
+      if (response.status !== 204) {
+        const data = await response.json();
+        setUsuarios(data.filter(usuario => usuario.estado));
+      }
     } catch (error) {
       handleError(error, 'Error al obtener usuarios');
     }
@@ -48,8 +49,10 @@ const Usuarios = () => {
     try {
       const response = await fetch('https://localhost:3000/api/cursos');
       if (!response.ok) throw new Error('Error al obtener cursos');
-      const data = await response.json();
-      setCursos(data);
+      if (response.status !== 204) {
+        const data = await response.json();
+        setCursos(data);
+      }
     } catch (error) {
       handleError(error, 'Error al obtener cursos');
     }

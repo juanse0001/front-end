@@ -21,9 +21,13 @@ import {
   Typography,
   Snackbar,
   Alert,
+  CircularProgress,
 } from "@mui/material";
 
 import { Edit, Delete, Info } from "@mui/icons-material";
+
+// Base URL para la API, tomada desde las variables de entorno en Vite o localhost por defecto
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://localhost:3000/api';
 
 const Cursos = () => {
   const [cursos, setCursos] = useState([]);
@@ -41,35 +45,46 @@ const Cursos = () => {
   const [usuariosInscritos, setUsuariosInscritos] = useState([]);
   const [errorMessage, setErrorMessage] = useState(null);
   const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [loading, setLoading] = useState(false); // Estado para manejar carga
 
   const defaultImage = "https://via.placeholder.com/50"; // URL de la imagen por defecto
-  
 
   useEffect(() => {
     fetchCursos();
   }, []);
 
   const fetchCursos = async () => {
+    setLoading(true); // Iniciar estado de carga
     try {
-      const response = await fetch('https://localhost:3000/api/cursos');
+      const response = await fetch(`${API_BASE_URL}/cursos`);
       if (!response.ok) throw new Error('Error al obtener cursos');
-      const data = await response.json();
-      setCursos(data);
+      
+      const data = await response.text();
+      if (data) {
+        setCursos(JSON.parse(data));
+      } else {
+        setCursos([]); // Si no hay contenido, inicializar con un arreglo vacío
+      }
     } catch (error) {
       console.error("Error al obtener cursos:", error);
       setErrorMessage("Error al obtener cursos");
       setOpenSnackbar(true);
+    } finally {
+      setLoading(false); // Finalizar estado de carga
     }
   };
 
   const fetchUsuariosInscritos = async (cursoId) => {
     try {
-      const response = await fetch(
-        `https://localhost:3000/api/cursos/${cursoId}/usuarios`
-      );
+      const response = await fetch(`${API_BASE_URL}/cursos/${cursoId}/usuarios`);
       if (!response.ok) throw new Error("Error al obtener usuarios inscritos");
-      const data = await response.json();
-      setUsuariosInscritos(data);
+      
+      const data = await response.text();
+      if (data) {
+        setUsuariosInscritos(JSON.parse(data));
+      } else {
+        setUsuariosInscritos([]); // Manejar respuesta vacía
+      }
     } catch (error) {
       console.error("Error al obtener usuarios inscritos:", error);
       setErrorMessage("Error al obtener usuarios inscritos");
@@ -93,7 +108,7 @@ const Cursos = () => {
 
   const handleCreateCurso = async () => {
     try {
-      const response = await fetch('https://localhost:3000/api/cursos', {
+      const response = await fetch(`${API_BASE_URL}/cursos`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -113,8 +128,8 @@ const Cursos = () => {
           estado: true,
         });
       } else {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Error al crear curso");
+        const errorText = await response.text(); // Obtener el error como texto si falla
+        throw new Error(errorText || "Error al crear curso");
       }
     } catch (error) {
       console.error("Error al crear curso:", error);
@@ -125,24 +140,19 @@ const Cursos = () => {
 
   const handleUpdateCurso = async () => {
     try {
-      const response = await fetch(
-        `https://localhost:3000/api/cursos/${selectedCurso._id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formValues),
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/cursos/${selectedCurso._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formValues),
+      });
 
       if (response.ok) {
         const cursoActualizado = await response.json();
-        setCursos(
-          cursos.map((curso) =>
-            curso._id === selectedCurso._id ? cursoActualizado : curso
-          )
-        );
+        setCursos(cursos.map((curso) =>
+          curso._id === selectedCurso._id ? cursoActualizado : curso
+        ));
         setSelectedCurso(null);
         setFormValues({
           titulo: "",
@@ -153,8 +163,8 @@ const Cursos = () => {
           estado: true,
         });
       } else {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Error al actualizar curso");
+        const errorText = await response.text(); // Manejar error como texto
+        throw new Error(errorText || "Error al actualizar curso");
       }
     } catch (error) {
       console.error("Error al actualizar curso:", error);
@@ -167,19 +177,16 @@ const Cursos = () => {
     if (!selectedCurso) return;
 
     try {
-      const response = await fetch(
-        `https://localhost:3000/api/cursos/${selectedCurso._id}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/cursos/${selectedCurso._id}`, {
+        method: "DELETE",
+      });
 
       if (response.ok) {
         setCursos(cursos.filter((curso) => curso._id !== selectedCurso._id));
         handleCloseDeleteDialog(); // Cierra el modal de confirmación después de eliminar
       } else {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Error al eliminar curso");
+        const errorText = await response.text(); // Manejar error como texto
+        throw new Error(errorText || "Error al eliminar curso");
       }
     } catch (error) {
       console.error("Error al eliminar curso:", error);
@@ -294,62 +301,67 @@ const Cursos = () => {
           </Button>
         </Box>
       </form>
-      <TableContainer component={Paper} style={{ marginTop: "20px" }}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Título</TableCell>
-              <TableCell>Descripción</TableCell>
-              <TableCell>Imagen</TableCell>
-              <TableCell>Alumnos</TableCell>
-              <TableCell>Calificación</TableCell>
-              <TableCell>Estado</TableCell>
-              <TableCell>Acciones</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {cursos.map((curso) => (
-              <TableRow key={curso._id}>
-                <TableCell>{curso.titulo}</TableCell>
-                <TableCell>{curso.descripcion}</TableCell>
-                <TableCell>
-                  <img
-                    src={curso.imagen}
-                    alt="imagen del curso"
-                    width="50"
-                    onError={(e) => {
-                      e.target.src = defaultImage;
-                    }} // Mostrar imagen por defecto si falla
-                  />
-                </TableCell>
-                <TableCell>{curso.alumnos}</TableCell>
-                <TableCell>{curso.calificacion} ★</TableCell>
-                <TableCell>{curso.estado ? "Activo" : "Inactivo"}</TableCell>
-                <TableCell>
-                  <IconButton
-                    onClick={() => handleEditClick(curso)}
-                    color="primary"
-                  >
-                    <Edit />
-                  </IconButton>
-                  <IconButton
-                    onClick={() => handleInfoClick(curso)}
-                    color="info"
-                  >
-                    <Info />
-                  </IconButton>
-                  <IconButton
-                    onClick={() => handleDeleteClick(curso)}
-                    color="secondary"
-                  >
-                    <Delete />
-                  </IconButton>
-                </TableCell>
+
+      {loading ? (
+        <CircularProgress />
+      ) : (
+        <TableContainer component={Paper} style={{ marginTop: "20px" }}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Título</TableCell>
+                <TableCell>Descripción</TableCell>
+                <TableCell>Imagen</TableCell>
+                <TableCell>Alumnos</TableCell>
+                <TableCell>Calificación</TableCell>
+                <TableCell>Estado</TableCell>
+                <TableCell>Acciones</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+            </TableHead>
+            <TableBody>
+              {cursos.map((curso) => (
+                <TableRow key={curso._id}>
+                  <TableCell>{curso.titulo}</TableCell>
+                  <TableCell>{curso.descripcion}</TableCell>
+                  <TableCell>
+                    <img
+                      src={curso.imagen}
+                      alt="imagen del curso"
+                      width="50"
+                      onError={(e) => {
+                        e.target.src = defaultImage;
+                      }} // Mostrar imagen por defecto si falla
+                    />
+                  </TableCell>
+                  <TableCell>{curso.alumnos}</TableCell>
+                  <TableCell>{curso.calificacion} ★</TableCell>
+                  <TableCell>{curso.estado ? "Activo" : "Inactivo"}</TableCell>
+                  <TableCell>
+                    <IconButton
+                      onClick={() => handleEditClick(curso)}
+                      color="primary"
+                    >
+                      <Edit />
+                    </IconButton>
+                    <IconButton
+                      onClick={() => handleInfoClick(curso)}
+                      color="info"
+                    >
+                      <Info />
+                    </IconButton>
+                    <IconButton
+                      onClick={() => handleDeleteClick(curso)}
+                      color="secondary"
+                    >
+                      <Delete />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
 
       {/* Modal de Información */}
       <Dialog

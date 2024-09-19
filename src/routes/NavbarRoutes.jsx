@@ -10,12 +10,12 @@ import Login from '../pages/login/login'
 const NavbarRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={<home />} />
-      <Route path="/home" element={<home />} />
-      <Route path="/cursos" element={<cursos />} />
-      <Route path="/usuarios" element={<usuarios />} />
-      <Route path="/masinformacion" element={<masInformacion />} />
-      <Route path="/login" element={<login />} />
+      <Route path="/" element={<Home />} />
+      <Route path="/home" element={<Home />} />
+      <Route path="/cursos" element={<Cursos />} />
+      <Route path="/usuarios" element={<Usuarios />} />
+      <Route path="/masinformacion" element={<MasInformacion />} />
+      <Route path="/login" element={<Login />} />
     </Routes>
   )
 }

@@ -35,16 +35,23 @@ const Home = () => {
   const fetchCursos = async () => {
     try {
       const response = await fetch("https://localhost:3000/api/cursos");
+  
+      // Verificar si la respuesta no es válida
       if (!response.ok) throw new Error("Error al obtener cursos");
-      const data = await response.json();
-      setCursos(data);
+  
+      // Verificar si el contenido de la respuesta no está vacío
+      const text = await response.text(); // Obtener la respuesta como texto primero
+      const data = text ? JSON.parse(text) : []; // Si el texto no está vacío, lo parseamos, si no, devolvemos un arreglo vacío
+      
+      setCursos(data); // Asignar los datos obtenidos al estado
+  
     } catch (error) {
       console.error("Error al obtener cursos:", error);
       setErrorMessage("Error al obtener cursos");
       setOpenSnackbar(true);
     }
   };
-
+  
   const handleImageError = (e) => {
     e.target.src = "https://taplink.st/a/6/9/2/7/955d28.png?2"; // Imagen por defecto
   };
