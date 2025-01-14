@@ -1,0 +1,12 @@
+# Ignorar node_modules
+node_modules/
+
+# Ignorar archivos de log
+*.log
+
+# Ignorar archivos temporales de editores (ejemplo para Visual Studio Code)
+.vscode/
+
+# Ignorar configuraciones de OS (MacOS, Windows)
+.DS_Store
+Thumbs.db
