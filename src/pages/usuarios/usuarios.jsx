@@ -33,7 +33,7 @@ const Usuarios = () => {
 
   const fetchUsuarios = async () => {
     try {
-      const response = await fetch('https://localhost:3000/api/usuarios');
+      const response = await fetch('https://localhost:5000/api/usuarios');
       if (!response.ok) throw new Error('Error al obtener usuarios');
       // Asegúrate de que la respuesta no sea vacía antes de procesarla
       if (response.status !== 204) {
@@ -47,7 +47,7 @@ const Usuarios = () => {
 
   const fetchCursos = async () => {
     try {
-      const response = await fetch('https://localhost:3000/api/cursos');
+      const response = await fetch('https://localhost:5000/api/cursos');
       if (!response.ok) throw new Error('Error al obtener cursos');
       if (response.status !== 204) {
         const data = await response.json();
@@ -74,7 +74,7 @@ const Usuarios = () => {
 
   const handleCreateUsuario = async () => {
     try {
-      const response = await fetch('https://localhost:3000/api/usuarios', {
+      const response = await fetch('https://localhost:5000/api/usuarios', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formValues),
@@ -94,7 +94,7 @@ const Usuarios = () => {
     if (!selectedUsuario?.email) return;
 
     try {
-      const response = await fetch(`https://localhost:3000/api/usuarios/${selectedUsuario.email}`, {
+      const response = await fetch(`https://localhost:5000/api/usuarios/${selectedUsuario.email}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formValues),
@@ -114,7 +114,7 @@ const Usuarios = () => {
     if (!selectedUsuario?.email) return;
 
     try {
-      const response = await fetch(`https://localhost:3000/api/usuarios/${selectedUsuario.email}`, {
+      const response = await fetch(`https://localhost:5000/api/usuarios/${selectedUsuario.email}`, {
         method: 'DELETE'
       });
       if (!response.ok) {
@@ -148,7 +148,7 @@ const Usuarios = () => {
     setSelectedUsuario(usuario);
 
     try {
-      const response = await fetch(`https://localhost:3000/api/usuarios/${usuario.email}/cursos`);
+      const response = await fetch(`https://localhost:5000/api/usuarios/${usuario.email}/cursos`);
       if (!response.ok) throw new Error('Error al obtener la información del usuario');
       const cursos = await response.json();
       setUsuarioInfo({ usuario, cursos });
@@ -164,7 +164,7 @@ const Usuarios = () => {
     setSelectedUsuario(usuario)
     try {
       const response = await fetch(
-        `https://localhost:3000/api/usuarios/${usuario._id}/cursos`
+        `https://localhost:5000/api/usuarios/${usuario._id}/cursos`
       );
       if (!response.ok) throw new Error("Error al obtener cursos del usuario");
       const cursosUsuario = await response.json();
@@ -179,7 +179,7 @@ const Usuarios = () => {
     if (!selectedUsuario) return;
 
     try {
-      const response = await fetch(`https://localhost:3000/api/usuarios/${selectedUsuario.email}/cursos`, {
+      const response = await fetch(`https://localhost:5000/api/usuarios/${selectedUsuario.email}/cursos`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ cursos: selectedCursos }), // Solo envía los IDs de los cursos

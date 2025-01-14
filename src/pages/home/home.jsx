@@ -34,7 +34,7 @@ const Home = () => {
 
   const fetchCursos = async () => {
     try {
-      const response = await fetch("https://localhost:3000/api/cursos");
+      const response = await fetch("https://localhost:5000/api/cursos");
   
       // Verificar si la respuesta no es válida
       if (!response.ok) throw new Error("Error al obtener cursos");
@@ -87,7 +87,7 @@ const Home = () => {
     try {
       // Intentar registrar el usuario
       const createUserResponse = await fetch(
-        "https://localhost:3000/api/usuarios",
+        "https://localhost:5000/api/usuarios",
         {
           method: "POST",
           headers: {
@@ -107,7 +107,7 @@ const Home = () => {
 
       // Inscribir al usuario en el curso
       const enrollResponse = await fetch(
-        `https://localhost:3000/api/usuarios/${email}/cursos`,
+        `https://localhost:5000/api/usuarios/${email}/cursos`,
         {
           method: "POST",
           headers: {
